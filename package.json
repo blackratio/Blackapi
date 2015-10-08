@@ -1,0 +1,21 @@
+{
+   "name": "black-api",
+   "version": "1.0.0",
+   "description": "creation of a restful API",
+   "main": "server.js",
+   "scripts": {
+      "test": "test",
+      "start": "node server.js"
+   },
+   "keywords": [
+      "api"
+   ],
+   "dependencies": {
+      "express": "~4.13.3",
+      "mongoose": "~4.1.10",
+      "body-parser": "~1.14.1",
+      "nodemon": "1.7.1"
+   },
+   "author": "David Wieczorek",
+   "license": "MIT"
+}
