@@ -9,31 +9,28 @@ var mongoose = require('mongoose');
 var https = require('https');
 var fs = require('fs');
 
-// Adding User model schema ( mongoose )
+// User model schema ( mongoose )
 var User = require('./models/user');
 
-// Adding SSL options
+// SSL options
 var sslOptions = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt'),
-  ca: fs.readFileSync('./cert/ca.crt'),
-  requestCert: true,
-  rejectUnauthorized: false
+   key: fs.readFileSync('./cert/server.key'),
+   cert: fs.readFileSync('./cert/server.crt'),
+   ca: fs.readFileSync('./cert/ca.crt'),
+   requestCert: true,
+   rejectUnauthorized: false
 };
 
 // Define port
 var port = process.env.PORT || 8080;
 
 
-
-
 // bodyParser() configuration
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Define MongoDB base dir
+// MongoDB base dir
 mongoose.connect('mongodb://localhost/data/test');
-
 
 
 
@@ -43,15 +40,15 @@ mongoose.connect('mongodb://localhost/data/test');
 // Initialize Express Router
 var router = express.Router();
 
-// middleware use for all requests
+// Middleware for all requests
 router.use(function(req, res, next) {
    console.log('Something is happening.');
    next();
 });
 
-// Index route
+// Index page
 router.get('/', function(req, res) {
-   res.json({ message: 'Welcome!' });
+   res.sendFile(__dirname + '/public/index.html');
 });
 
 // REGISTER ROUTES -------------------------------
@@ -59,10 +56,7 @@ app.use('', router);
 
 
 
-
-
-
-// ROUTES API
+// USER ROUTES API
 // =============================================================================
 
 // Initialize main RESTFUL route
@@ -152,34 +146,32 @@ router.route('/user/:user_id')
 
    .put(function(req, res) {
 
-        User.findById(req.params.user_id, function(err, user) {
+      User.findById(req.params.user_id, function(err, user) {
 
+         if (err) {
+            res.send(err);
+         }
+         else {
+            user.name = req.body.name;
+            user.age = req.body.age;
+            user.birthDate = req.body.birthdate;
+            user.email = req.body.email;
+         }
+
+         // Save updated user
+         user.save(function(err) {
             if (err) {
                res.send(err);
             }
             else {
-               user.name = req.body.name;
-               user.age = req.body.age;
-               user.birthDate = req.body.birthdate;
-               user.email = req.body.email;
+               res.json({
+                  message: 'User successfully updated!'
+               });
             }
+         });
 
-            // Save updated user
-            user.save(function(err) {
-                if (err) {
-                   res.send(err);
-                }
-                else {
-                   res.json({
-                      message: 'User successfully updated!'
-                   });
-                }
-            });
-
-        });
-    });
-
-
+      });
+   });
 
 
 
@@ -187,6 +179,6 @@ router.route('/user/:user_id')
 // =============================================================================
 //app.listen(port);
 //console.log('Api server on port ' + port);
-var secureServer = https.createServer(sslOptions,app).listen(port, function(){
-  console.log("Secure Express server listening on port " + port);
+var secureServer = https.createServer(sslOptions, app).listen(port, function(){
+   console.log('BlackRatio Secure HTTPS Server listening on port ' + port + ' , yeah !!!');
 });
