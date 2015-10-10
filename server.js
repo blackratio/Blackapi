@@ -6,16 +6,30 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var https = require('https');
+var fs = require('fs');
 
+// Adding User model schema ( mongoose )
 var User = require('./models/user');
+
+// Adding SSL options
+var sslOptions = {
+  key: fs.readFileSync('./cert/server.key'),
+  cert: fs.readFileSync('./cert/server.crt'),
+  ca: fs.readFileSync('./cert/ca.crt'),
+  requestCert: true,
+  rejectUnauthorized: false
+};
+
+// Define port
+var port = process.env.PORT || 8080;
+
+
 
 
 // bodyParser() configuration
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Define port
-var port = process.env.PORT || 8080;
 
 // Define MongoDB base dir
 mongoose.connect('mongodb://localhost/data/test');
@@ -26,6 +40,7 @@ mongoose.connect('mongodb://localhost/data/test');
 // ROUTES CONF
 // =============================================================================
 
+// Initialize Express Router
 var router = express.Router();
 
 // middleware use for all requests
@@ -44,6 +59,9 @@ app.use('', router);
 
 
 
+
+
+
 // ROUTES API
 // =============================================================================
 
@@ -56,9 +74,12 @@ router.route('/user')
 
    .post(function(req, res) {
 
-      var user = new User();      // create a new instance of the User model
-      user.name = req.body.name;  // set the user name
+      var user = new User();
+
+      user.name = req.body.name;
       user.age = req.body.age;
+      user.birthDate = req.body.birthdate;
+      user.email = req.body.email;
 
       // save the user and check errors
       user.save(function(err) {
@@ -79,12 +100,12 @@ router.route('/user')
    // @ GET -> http://localhost:8080/user
 
    .get(function(req, res) {
-      User.find(function(err, users) {
+      User.find(function(err, usersList) {
          if (err) {
             res.send(err);
          }
          else {
-            res.json(users);
+            res.json(usersList);
          }
       });
    });
@@ -92,7 +113,7 @@ router.route('/user')
 
 router.route('/user/:user_id')
 
-   // Get users
+   // Get user by ID
    // @ GET -> http://localhost:8080/user/:user_id
 
    .get(function(req, res) {
@@ -104,12 +125,68 @@ router.route('/user/:user_id')
             res.json(user);
          }
       });
-   });
+   })
+
+
+   // Delete user by ID
+   // @ DEL -> http://localhost:8080/user/:user_id
+
+   .delete(function(req, res) {
+      User.remove({
+         _id: req.params.user_id
+      }, function(err, user) {
+         if (err) {
+            res.send(err);
+         }
+         else {
+            res.json({
+               message: 'User successfully deleted'
+            });
+         }
+      });
+   })
+
+
+   // Update user by ID
+   // @ DEL -> http://localhost:8080/user/:user_id
+
+   .put(function(req, res) {
+
+        User.findById(req.params.user_id, function(err, user) {
+
+            if (err) {
+               res.send(err);
+            }
+            else {
+               user.name = req.body.name;
+               user.age = req.body.age;
+               user.birthDate = req.body.birthdate;
+               user.email = req.body.email;
+            }
+
+            // Save updated user
+            user.save(function(err) {
+                if (err) {
+                   res.send(err);
+                }
+                else {
+                   res.json({
+                      message: 'User successfully updated!'
+                   });
+                }
+            });
+
+        });
+    });
+
 
 
 
 
 // STARTING SERVER
 // =============================================================================
-app.listen(port);
-console.log('Api server on port ' + port);
+//app.listen(port);
+//console.log('Api server on port ' + port);
+var secureServer = https.createServer(sslOptions,app).listen(port, function(){
+  console.log("Secure Express server listening on port " + port);
+});
