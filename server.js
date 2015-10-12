@@ -29,7 +29,6 @@ var sslOptions = {
    rejectUnauthorized: false
 };
 
-
 // Define port
 var port = process.env.PORT || config.port;
 
@@ -135,7 +134,8 @@ router.post('/authenticate', function(req, res) {
             // if user is found and password is right
             // create a token
             var token = jwt.sign(user, app.get(config.secretVariable), {
-               expiresInMinutes: 1440 // expires in 24 hours
+               algorithm: 'HS256',
+               expiresIn: 2000 // expires in seconds
             });
 
             // return the information including token as JSON
