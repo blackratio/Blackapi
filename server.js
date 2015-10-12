@@ -43,6 +43,19 @@ var router = express.Router();
 // Middleware for all requests
 router.use(function(req, res, next) {
    console.log('Something is happening.');
+   // Website you wish to allow to connect
+   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3002');
+
+   // Request methods you wish to allow
+   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+   // Request headers you wish to allow
+   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+   // Set to true if you need the website to include cookies in the requests sent
+   // to the API (e.g. in case you use sessions)
+   res.setHeader('Access-Control-Allow-Credentials', true);
+
    next();
 });
 
@@ -177,8 +190,8 @@ router.route('/user/:user_id')
 
 // STARTING SERVER
 // =============================================================================
-//app.listen(port);
-//console.log('Api server on port ' + port);
+/*app.listen(port);
+console.log('Api server on port ' + port);*/
 var secureServer = https.createServer(sslOptions, app).listen(port, function(){
    console.log('BlackRatio Secure HTTPS Server listening on port ' + port + ' , yeah !!!');
 });
