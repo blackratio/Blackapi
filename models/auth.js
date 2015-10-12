@@ -2,14 +2,13 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 
-// USER SCHEMA
+// USER AUTH SCHEMA
 // =============================================================================
 
-var UserSchema = new Schema({
+var UserAuth = new Schema({
    name: String,
-   age: Number,
-   email: String,
-   birthDate: Date
+   password: String,
+   admin: Boolean
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('UserAuth', UserAuth);
