@@ -14,9 +14,9 @@ var User = require('./models/user');
 
 // SSL options
 var sslOptions = {
-   key: fs.readFileSync('./cert/server.key'),
-   cert: fs.readFileSync('./cert/server.crt'),
-   ca: fs.readFileSync('./cert/ca.crt'),
+   key: fs.readFileSync('./cert/black-server.key'),
+   cert: fs.readFileSync('./cert/black-server.crt'),
+   ca: fs.readFileSync('./cert/black-server-ca.crt'),
    requestCert: true,
    rejectUnauthorized: false
 };
